@@ -1,0 +1,169 @@
+<!-- 
+Created by Sean L. on May. 18.
+Last Updated by Sean L. on May. 18.
+
+ZKE-DICT - Prompt Template
+user.xml
+
+PromptCraft, 2025. All rights reserved.
+-->
+
+<xml version="1.0" encoding="UTF-8"?>
+	<meta>
+		<name>Vocabulary Document Generator</name>
+		<description>Generate JSON array for vocabulary entries with specific requirements.</description>
+		<author>Makabaka1880</author>
+		<version>1.0</version>
+		<date>2024-05-18</date>
+		<license>MIT</license>
+	</meta>
+	<prompt>
+		<task>
+			<description>
+				You are a MongoDB database administrator and a vocabulary expert. 
+				Your task is to create a JavaScript array of MongoDB documents for vocabulary entries.
+				You are to generate a JavaScript array of MongoDB documents for vocabulary entries, following some strict requirements.
+			</description>
+		</task>
+		<requirements>
+			<item>Output only the array of documents for insertMany, not the full insertMany query string.</item>
+			<item>Distinguish all distinct parts of speech as separate senses.</item>
+			<item>Include DJ Phoneme (RP Phonics) in square brackets (e.g., "[əˈləʊn]").</item>
+			<item>Different pronunciation, part of speech, and definition should be provided in different senses. For example, "a" contains a sense with [ə] and another with [eɪ]; "ball" should contain two senses meaning 球 and 舞会.</item>
+			<item>Different definitions should be provided in different senses, even if they share the same part of speech. For example, "broom" means 扫帚 (n.) and 金银花 (n.) </item>
+			<item>Provide accurate Chinese definitions and concise usage notes.</item>
+			<item>Provide meaningful etymologies, breaking down the word into prefix, root, and suffix where possible.</item>
+			<item>Proper nouns (e.g., America, American) must be identified as such.</item>
+			<item>Output must be in raw JavaScript array syntax, without explanation, markdown formatting, or the insertMany function call.</item>
+			<item>The output should be copy-pasteable directly as an array into the MongoDB shell (mongosh).</item>
+			<item>Do not add any comments or extra output beyond the array.</item>
+			<item>Include only the ID, WORD, SENSES, ETYMOLOGY, and NOTES fields. Do not add additional items to the structure.</item>
+			<item>IDs must start at the specified idStartsAt value and increment by 1 for each word.</item>
+			<item>Each word entry must be inserted into the MongoDB collection using a valid document structure as shown in the example.</item>
+			<item>Return only the array of documents, nothing else.</item>
+			<item>Valid Criteria
+				<item>For each combination of definition, phonic, and part of speech for a word, ensure they correspond to a sensible and attested semantic usage in the English language.</item>
+			</item>
+		</requirements>
+		<instructions>
+			<step>Initialize an empty array for the output.</step>
+			<step>Initialize the ID counter to $idStartsAt.</step>
+			<step>Split the input words by commas into an array for senses.</step>
+			<loop for="word in [$words]">
+				<step>Increment id</step>
+				<step>Analyze lexical properties of the word.</step>
+				<step>Identify distinct definitions of the word.</step>
+				<step>Identify phonetic representation for each sense.</step>
+				<step>Identify part of speech for each sense.</step>
+				<loop for="def in [definitions]">
+					<loop for="phon in [phonetics]">
+						<loop for="pos in [partsOfSpeech]">
+							<if test="def, phon, and pos matches valid criteria">
+								<step>Construct a sense object with the definition, phonetic representation, and part of speech. Use pos, phonic, and definition as keys.</step>
+								<step>Add the document to the senses array.</step>
+							</if>
+						</loop>
+					</loop>
+				</loop>
+				<step>Identify the prefix(es), root, and suffix(es) of the word.</step>
+				<loop for="etym in [etymology]">
+					<step>Identify the substring etym.</step>
+					<step>Draft a description of etym's origin.</step>
+					<step>Construct an etymology object with the fix and description. Use fix and description for keys.</step>
+					<step>Add the etymology object to the senses array.</step>
+				</loop>
+				<step>Draft a usage note for the word. It should be a string.</step>
+				<step>Construct a object with `id`(int, the ID), `word`(string, the word), `senses`(array of senses), `etym`(array of etymology), and `notes`(string, the usage note).</step>
+				<step>Add the object to the output array.</step>
+				<step>Increment the ID counter.</step>
+			</loop>
+			
+		</instructions>
+		<example>
+			<config>
+				<idStartsAt>1001</idStartsAt>
+				<words>a,ability,about</words>
+			</config>
+			<output>
+				[
+					{
+						"id": 1001,
+						"word": "a",
+						"senses": [
+							{
+								"pos": "article",
+								"phonic": "[ə]",
+								"definition": "不定冠词（用于辅音音素开头的词前）"
+							},
+							{
+								"pos": "article",
+								"phonic": "[eɪ]",
+								"definition": "不定冠词（强调时使用）"
+							}
+						],
+						"etym": [
+							{
+								"fix": "a",
+								"description": "源自古英语 'ān'（意为“一个”）的缩略形式"
+							}
+						],
+						"notes": "发音取决于后续词的起始音素和语境强调。在元音音素前需使用 'an'（如：an apple [ən 'æpl]）"
+					},
+					{
+						"id": 1002,
+						"word": "ability",
+						"senses": [
+							{
+								"pos": "n.",
+								"phonic": "[ə'bɪləti]",
+								"definition": "能力；才能；本领"
+							}
+						],
+						"etym": [
+							{
+								"fix": "ab-",
+								"description": "表示“去，离开”"
+							},
+							{
+								"fix": "-ility",
+								"description": "名词后缀，表示性质、能力"
+							}
+						],
+						"notes": "常用于形容人的才能或完成任务的能力"
+					},
+					{
+						"id": 1003,
+						"word": "about",
+						"senses": [
+							{
+								"pos": "prep.",
+								"phonic": "[ə'baʊt]",
+								"definition": "关于；大约"
+							},
+							{
+								"pos": "adv.",
+								"phonic": "[ə'baʊt]",
+								"definition": "到处；大约"
+							}
+						],
+						"etym": [
+							{
+								"fix": "a-",
+								"description": "表示“在……之上”"
+							},
+							{
+								"fix": "bout",
+								"description": "源自古英语 'būtan'，意为“外面”"
+							}
+						],
+						"notes": "常用于表示主题、数量或范围"
+					}
+				]
+			</output>
+		</example>
+		<config>
+			<idStartsAt>$idStarts</idStartsAt>
+			<words>$words</words>
+		</config>
+	</prompt>
+</xml>

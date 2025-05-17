@@ -6,7 +6,7 @@ An example `XML` formatted prompt. School project.
 
 > It is recommended to delete the `<meta>` and header comment section to save on api call expenses.
 > If one were to run this in a GUI, please replace all $idStartsAt and $words with your starting id and word list.
-> 
+
 After cloning this project, create a `dotenv` configuration file:
 
 ```shell
